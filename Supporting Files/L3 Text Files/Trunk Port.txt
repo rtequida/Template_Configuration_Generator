@@ -1,0 +1,12 @@
+interface @interface1@
+ description @uplink_desc@
+ switchport trunk allowed vlan @allowed@
+ switchport mode trunk
+ channel-group @channel@ mode active
+!
+interface @interface2@
+ description @uplink_desc@
+ switchport trunk allowed vlan @allowed@
+ switchport mode trunk
+ channel-group @channel@ mode active
+!

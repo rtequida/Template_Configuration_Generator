@@ -1,0 +1,22 @@
+interface @interface1@
+ description @uplink_desc@
+ no switchport
+ ip address @route_IP1@
+ no ip redirects
+ no ip proxy-arp
+ ip hello-interval eigrp 100 1
+ ip hold-time eigrp 100 3
+ no ipv6 redirects
+ ip pim sparse-mode
+!
+interface @interface2@
+ description @uplink_desc@
+ no switchport
+ ip address @route_IP2@
+ no ip redirects
+ no ip proxy-arp
+ ip hello-interval eigrp 100 1
+ ip hold-time eigrp 100 3
+ no ipv6 redirects
+ ip pim sparse-mode
+!

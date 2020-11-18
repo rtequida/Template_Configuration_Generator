@@ -1,0 +1,227 @@
+no service pad
+service tcp-keepalives-in
+service tcp-keepalives-out
+service timestamps debug datetime localtime msec show-timezone
+service timestamps log datetime localtime msec show-timezone
+service password-encryption
+service sequence-numbers
+shell processing full
+!
+hostname @hostname@
+!
+enable secret ********
+!
+username ******** privilege 15 secret ********
+username ******** privilege 15 secret ********
+!
+aaa new-model
+!
+aaa group server tacacs+ tacacs-servers
+ server name ********
+ server name ********
+!
+aaa authentication login default local group tacacs-servers line
+aaa authorization exec default local group tacacs-servers 
+!
+aaa session-id common
+clock timezone mst -7 0
+lldp run
+cdp run
+!
+ip routing
+ip domain-name central.tucsonaz.gov
+ip domain-lookup
+ip name-server XXX.XXX.XXX.XXX
+ip name-server XXX.XXX.XXX.XXX
+!
+vtp mode transparent
+udld aggressive
+!
+spanning-tree mode rapid-pvst
+spanning-tree loopguard default
+spanning-tree portfast default
+spanning-tree portfast bpduguard default
+spanning-tree extend system-id
+spanning-tree pathcost method long
+!
+file prompt alert
+!
+no vstack
+crypto key generate rsa general-keys label my-ssh-key modulus 2048
+!
+ip ssh version 2
+!
+sdm prefer routing
+!
+vlan internal allocation policy ascending
+!
+vlan@data_num@
+ name @data_name@
+!
+vlan@voice_num@
+name @voice_name@
+!
+errdisable recovery cause all
+errdisable recovery interval 180
+!
+interface Loopback0
+ ip address @loopback@ 255.255.255.255
+ ip pim sparse-mode
+ no ip redirects
+!
+interface Vlan@data_num@
+ description Management Interface
+ ip address @data_IP@
+ ip pim sparse-mode
+ !
+interface Port-channel@chann_num@
+ description @chann_desc@
+ switchport
+ switchport trunk allowed vlan @chann_allowed@
+ switchport mode trunk
+!
+@uplink_port@
+interface range @access@
+ description _IP Phone/PC
+ switchport access vlan @data_num@
+ switchport mode access
+ switchport voice vlan @voice_num@
+!
+ip multicast-routing distributed
+ip multicast multipath
+ip pim accept-rp auto-rp
+ip pim log-neighbor-changes
+!
+router eigrp XXX
+ default-metric 10000 100 255 1 1500
+ no auto-summary
+ network XXX.XXX.XXX.XXX
+ network XXX.XXX.XXX.XXX
+ redistribute connected
+ passive-interface default
+!
+ip tftp source Loopback0
+
+ip domain lookup source-interface Loopback0
+!
+no ip http server
+no ip http secure-server
+!
+no logging console
+no logging esm config
+logging buffered 64000 debugging
+logging facility ********
+logging trap errors
+logging XXX.XXX.XXX.XXX
+logging XXX.XXX.XXX.XXX
+logging trap 6
+ip tftp blocksize 1024
+logging source Loopback0
+access-list XXremark ACL SSH
+access-list XX permit XXX.XXX.XXX.XXX 0.0.255.255
+access-list XX permit XXX.XXX.XXX.XXX 0.0.255.255
+access-list XX deny   any log
+access-list XX remark ACL for SNMP RO Access
+access-list XX permit host 166.89.145.124
+access-list XX permit XXX.XXX.XXX.XXX 0.0.0.15
+access-list XX permit XXX.XXX.XXX.XXX 0.0.1.255
+access-list XX permit XXX.XXX.XXX.XXX 0.0.0.63
+access-list XX permit XXX.XXX.XXX.XXX 0.0.0.7
+access-list XX deny   any log
+snmp-server location @snmp_loc@
+snmp-server contact @snmp_poc@
+snmp-server community readpass RO 22
+!
+tacacs-server directed-request
+tacacs server ********
+ address ipv4 XXX.XXX.XXX.XXX
+ key keenetwork
+tacacs server ********
+ address ipv4 XXX.XXX.XXX.XXX
+ key keenetwork
+!
+alias router dsr do show run
+alias router sr do show run
+alias router tm do terminal monitor
+alias router sl do show logging
+alias line dsr do show run
+alias line sr do show run
+alias line tm do terminal monitor
+alias line sl do show logging
+alias subinterface dsr do show run
+alias subinterface sr do show run
+alias subinterface tm do terminal monitor
+alias subinterface sl do show logging
+alias interface dsr do show run
+alias interface sr do show run
+alias interface tm do terminal monitor
+alias interface sl do show logging
+alias configure dsr do show run
+alias configure sr do show run
+alias configure tm do terminal monitor
+alias configure sl do show logging
+alias exec ct config t
+alias exec sr show run
+alias exec wm copy running-config startup-config
+alias exec dsr do show run
+alias exec tm terminal monitor
+alias exec sl show logging
+alias exec sv tclsh tftp://XXX.XXX.XXX.XXXscripts/save-config.tcl
+tclsrc="tftp://XXX.XXX.XXX.XXX/scripts"
+!
+privilege exec level 15 ssh
+privilege exec level 15 telnet
+privilege exec level 15 show
+!
+banner exec ^
+Connected to $(hostname).$(domain) on line $(line-desc) $(line).
+Use of this system constitues your consent to monitoring.
+^
+banner login ^
+                         NOTICE TO USERS
+========================================================================
+  This is an official computer system and is the property of the
+  CITY OF TUCSON.  It is for authorized users only.  Unauthorized users
+  are prohibited.  Users (authorized or unauthorized) have no explicit
+  or implicit expectation of privacy.  Any or all users of this system
+  may be subject to one of more of the following actions:  interception,
+  monitoring, recording, auditing, inspection and disclosing to security
+  personnel and law enforcement personnel, as well as authorized
+  officials of other agencies, both domestic and foreign.  By using this
+  system, the user consents to these actions.  Unauthorized or improper
+  use of this system may result in administrative disciplinary action
+  and civil and criminal penalties.  By accessing this system you
+  indicate your awareness and consent to these term and conditions
+  of use.  DISCONTINUE ACCESS IMMEDIATELY if you do not agree to the
+  conditions stated in this notice.
+========================================================================
+$(hostname) Contacting AUTHENTICATION servers
+Session established with AUTHENTICATION Servers.
+^
+banner prompt-timeout ^
+Session timed-out with AUTHENTICATION Servers.  Logging complete.  Goodbye!
+^
+!
+line con 0
+ exec-timeout 60 0
+ password ********
+ logging synchronous
+line vty 0 4
+ access-class XX in
+ exec-timeout 60 0
+ session-timeout 5 
+ password ********
+ transport input ssh
+line vty 5 15
+ access-class XX in
+ exec-timeout 60 0
+ session-timeout 5 
+ password ********
+ transport input ssh
+!
+ntp source Loopback0
+ntp server XXX.XXX.XXX.XXX prefer
+ntp server XXX.XXX.XXX.XXX
+ntp server XXX.XXX.XXX.XXX
+@additional_commands@
+end
