@@ -1,2 +1,2 @@
-# Template_Configuration_Generator
+# Template Configuration Generator
  
